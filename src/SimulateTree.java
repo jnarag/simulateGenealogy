@@ -30,7 +30,6 @@ public class SimulateTree {
     double sampleEndTime = 21*365.25; // in days
     double daysBefore = 50; // in days
 
-
     boolean sampleBothPatches = false;
     boolean sampleSeasonalPatch = false;
     int samplingSchemeForTwoPatch = 0; //make these schemes interpretable or add notes
@@ -92,7 +91,7 @@ public class SimulateTree {
 
         //create names and label reassortants, patch numbers
         names = createNames(sampledLineages, sampleTimes);
-        tools.labelReassortants(names, sampledLineages, iMatrix.reassortant, iMatrix.parentCo, iMatrix.patch);
+        tools.labelReassortants(names, sampledLineages, iMatrix.reassortant, iMatrix.parentCo, iMatrix.patch, iMatrix.fitness);
 
         List<List<Integer>> parentLineages = getParentLineages(n_seqs, sampledLineages, iMatrix.parent);
         b = new int[(n_lineages-1)][2];
@@ -193,10 +192,10 @@ public class SimulateTree {
             }
 
             if(iMatrix.patch.size()>0)  {
-                nodeName = "'coal_"+x_event+"_patch_"+iMatrix.getPatch(coal_parent)+"_reass_"+reassState+"_node_"+(loc_b+1)+"_"+(timeOfCoalescence/365.25)+"'";
+                nodeName = "'coal_"+x_event+"_patch_"+iMatrix.getPatch(coal_parent)+"_reass_"+reassState+"_fitness_"+iMatrix.getFitness(coal_parent)+"_node_"+(loc_b+1)+"_"+(timeOfCoalescence/365.25)+"'";
             }
             else{
-                nodeName = "'coal_"+x_event+"_patch_0"+"_reass_"+reassState+"_node_"+(loc_b+1)+"_"+(timeOfCoalescence/365.25)+"'";
+                nodeName = "'coal_"+x_event+"_patch_0"+"_reass_"+reassState+"_fitness_"+iMatrix.getFitness(coal_parent)+"_node_"+(loc_b+1)+"_"+(timeOfCoalescence/365.25)+"'";
 
             }
 
@@ -302,17 +301,6 @@ public class SimulateTree {
 
                 index2 = non_coalescedList1.get(1);//tools.lastIndex(non_coalescedList1));
 
-//                Set<Integer> set = new HashSet<Integer>();
-//                set.addAll(non_coalescedList1);
-//                set.addAll(non_coalescedList2);
-//
-//                List<Integer> list = new ArrayList<Integer>();
-//                list.addAll(set);
-//                Collections.sort(list);
-//
-//                index1 = list.get(0);
-//                index2 = list.get(1);
-
 
             }
 
@@ -348,8 +336,8 @@ public class SimulateTree {
             //basal_d.put(index2,d[index2]);
 
             //}
-
-            String nodeName = "'coal_"+x_event+"_patch_0_reass_nr_node_"+(loc_b+1)+"_"+(timeOfCoalescence/365.25)+"'";
+            int coal_parent = Collections.max(completeIndividuals)+1;
+            String nodeName = "'coal_"+x_event+"_patch_0_reass_nr_fitness_"+iMatrix.getFitness(coal_parent)+"_node_"+(loc_b+1)+"_"+(timeOfCoalescence/365.25)+"'";
 
             x_event++;
             names.add(nodeName);
@@ -358,7 +346,7 @@ public class SimulateTree {
 
             loc_b += 1;
 
-            int coal_parent = Collections.max(completeIndividuals)+1;
+
 
             completeIndividuals.add(coal_parent);
             completeSeqTimes.add(timeOfCoalescence);
@@ -1003,8 +991,7 @@ public class SimulateTree {
 
         }
         Random random = new Random();
-
-        //Collections.shuffle(patchIndices, random);
+        Collections.shuffle(patchIndices, random);
 
         //List<Integer> locsNotPrevUsed = new ArrayList<Integer>();
  //       Set<Integer> locsNotPrevUsed = new HashSet<Integer>();
@@ -1013,7 +1000,7 @@ public class SimulateTree {
 
         List<Integer> patchSampledLineages = new ArrayList<Integer>();
         List<Double> patchSampleTimes = new ArrayList<Double>();
-        double sampleTime;
+
         switch(samplingScheme) {
 
             //I think case 0 and 1 is pointless - get rid of it...
@@ -1069,14 +1056,14 @@ public class SimulateTree {
 
                 for(int i=0; i<(n_patchSamples); i++) {
 
-                    int index = (int)(Math.floor(Math.random()*patchIndices.size()));
-                    Integer sampledLineage = patchIndices.get(index);
+//                    int index = (int)(Math.floor(Math.random()*patchIndices.size()));
+                    Integer sampledLineage = patchIndices.get(i);
 
                     Double sampledTime = iMatrix.getDeath().get(sampledLineage);
                     patchSampledLineages.add(sampledLineage);
                     patchSampleTimes.add(sampledTime);
 
-                    patchIndices.remove(index);
+                    //patchIndices.remove(index);
 
                 }
                 break;
@@ -1090,7 +1077,6 @@ public class SimulateTree {
     }
 
     private List<String> createNames(List<Integer> sampledLineages, List<Double> sampleTimes) {
-
 
         List<String> names = new ArrayList<String>();
 
@@ -1209,30 +1195,41 @@ public class SimulateTree {
                 String[] partsNode1 = node1.split("_");
                 String[] partsNode2 = node2.split("_");
                 String[] partsParent = names.get(n_lineages+k).split("_");
-
+                //System.out.println(partsNode1.length);
+                //System.out.println(partsNode1.length);
                 String patchInfo = "?";
                 String reassInfo = "?";
+                String fitnessInfo = "?";
 
                 String patchNode1 = "?";
                 String patchNode2 = "?";
                 String reassNode1 = "?";
                 String reassNode2 = "?";
+                String fitness1 = "?";
+                String fitness2 = "?";
+
 
                 if(partsNode1.length > 2 && partsNode2.length > 2) {
                     patchNode1 = partsNode1[1];
                     patchNode2 = partsNode2[1];
                     reassNode1 = partsNode1[2];
                     reassNode2 = partsNode2[2];
+                    fitness1 = partsNode1[5];
+                    fitness2 = partsNode2[5];
+
                 }
+
 
                 if(partsParent.length > 5)  {
                     patchInfo = partsParent[3];
                     reassInfo = partsParent[5];
+                    fitnessInfo = partsParent[7];
+
                 }
 
 
-                treeString = "("+node1+"[&patch=\""+patchNode1+"\",reassortant=\""+reassNode1+"\"]:"+nodeTimes[child1-1]+
-                        ","+node2+"[&patch=\""+patchNode2+"\",reassortant=\""+reassNode2+"\"]:"+nodeTimes[child2-1]
+                treeString = "("+node1+"[&patch=\""+patchNode1+"\",reassortant=\""+reassNode1+"\",fitness="+fitness1+"]:"+nodeTimes[child1-1]+
+                        ","+node2+"[&patch=\""+patchNode2+"\",reassortant=\""+reassNode2+"\",fitness="+fitness2+"]:"+nodeTimes[child2-1]
                         +")[&parent="+names.get(n_lineages+k)+",parentReass=\""+reassInfo+"\""+",parentPatch=\""+patchInfo+"\"]";
 
                 //System.out.println(nodeString);
@@ -1276,15 +1273,15 @@ public class SimulateTree {
         for(int i=0; i<n_segments; i++) {
 
             //File outputfile_b = new File("coalescentPairs_epidemic_"+n_lineages+"N_"+params.N+"_segment_mij_"+params.m_ij+"_psii_"+params.psi_i+"_psij_"+params.psi_j+"_"+(i)+".csv");
-            File outputfile_b = new File("coalescentPairs_endemic_"+n_lineages+"_N_"+params.N+"_antigenicMu_"+params.antigenMu+"_s_"+params.dfe+"_psi_"+params.psi_i+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
+            File outputfile_b = new File("coalescentPairs_endemic_"+n_lineages+"_N_"+params.N+"_antigenicMu_"+params.antigenicMu+"_s_"+params.s_b+"_psi_"+params.psi_i+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
 
             //File outputfile_d = new File("nodeTimes_epidemic_100_20e6_segment_mij_"+params.m_ij+"_psii_"+params.psi_i+"_psij_"+params.psi_j+"_"+(i)+".csv");
-            File outputfile_d = new File("nodeTimes_endemic_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenMu+"_s_"+params.dfe+"_psi_"+params.psi_i+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
+            File outputfile_d = new File("nodeTimes_endemic_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenicMu+"_s_"+params.s_b+"_psi_"+params.psi_i+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
 
             //File outputfile_n = new File("names_epidemic_100_20e6_segment_mij_"+params.m_ij+"_psii_"+params.psi_i+"_psij_"+params.psi_j+"_"+(i)+".csv");
-            File outputfile_n = new File("names_endemic_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenMu+"_s_"+params.dfe+"_psi_"+params.psi+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
+            File outputfile_n = new File("names_endemic_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenicMu+"_s_"+params.s_b+"_psi_"+params.psi+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
 
-            File treeOutputFile = new File("tree_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenMu+"_s_"+params.dfe+"_psi_"+params.psi+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".tre");
+            File treeOutputFile = new File("tree_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenicMu+"_s_"+params.s_b+"_psi_"+params.psi+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".tre");
 
             try {
                 writer1 = new FileWriter(outputfile_b);
@@ -1370,16 +1367,15 @@ public class SimulateTree {
 
 
         params.psi = Double.parseDouble(args[0].trim());
-        params.dfe = Double.parseDouble(args[1].trim());
-        params.antigenMu = Double.parseDouble(args[2].trim());
-
+        params.s_b = Double.parseDouble(args[1].trim());
+        params.antigenicMu = Double.parseDouble(args[2].trim());
 
 
         int n_segments = 2;
         int n_seasons = 1;
         int n_lineages = 500;
 
-        if(args.length > 3) {
+        if(args.length > 4) {
 
             n_segments = Integer.parseInt(args[3].trim());
             n_seasons = Integer.parseInt(args[4].trim());
@@ -1387,6 +1383,7 @@ public class SimulateTree {
 
         }
 
+//        System.out.println(endTime);
         model.runSimulation(params);
 
 
@@ -1395,8 +1392,9 @@ public class SimulateTree {
             System.out.println("season "+(j+1));
             SimulateTree tree = new SimulateTree();
             tree.n_lineages = n_lineages;
-            tree.sampleStartTime+=j*365.25;
-            tree.sampleEndTime+=j*365.25;
+
+            tree.sampleStartTime += j*365.25;
+            tree.sampleEndTime += j*365.25;
             tree.getTransmissionTrees(n_segments, model, 0);
         }
 
@@ -1410,11 +1408,14 @@ public class SimulateTree {
 
         params.psi_i = Double.parseDouble(args[0].trim());
         params.psi_j =  Double.parseDouble(args[1].trim());
-        params.dfe = Double.parseDouble(args[2].trim());
-        params.antigenMu = Double.parseDouble(args[3].trim());
+        params.s_b = Double.parseDouble(args[2].trim());
+        params.antigenicMu = Double.parseDouble(args[3].trim());
+
+
 
         int n_segments = Integer.parseInt(args[4].trim());
         int n_seasons = Integer.parseInt(args[5].trim());
+        int n_lineages = Integer.parseInt(args[6].trim());
 
         model.runSimulation(params);
 
@@ -1422,6 +1423,9 @@ public class SimulateTree {
 
             System.out.println("season "+(j+1));
             SimulateTree tree = new SimulateTree();
+            tree.sampleSeasonalPatch = true;
+            tree.n_lineages = n_lineages;
+
             tree.sampleStartTime+=j*365.25;
             tree.sampleEndTime+=j*365.25;
             tree.getTransmissionTrees(n_segments, model, 0);
@@ -1457,9 +1461,11 @@ public class SimulateTree {
 
     public static void main(String [] args){
 
+        runOnePatchSim(args);
+
         //runOnePatchSim(args);
 
-        runOnePatchSim(args);
+        //runTwoPatchSim(args);
 
     }
 

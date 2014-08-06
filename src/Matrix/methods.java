@@ -780,7 +780,7 @@ public class methods {
         return names;
     }
 
-    public void labelReassortants(List<String> names, List<Integer> sampledLineages, List<Integer> reassortants, List<Integer> parent_co, List<Integer> patch) {
+    public void labelReassortants(List<String> names, List<Integer> sampledLineages, List<Integer> reassortants, List<Integer> parent_co, List<Integer> patch, List<Double> fitness) {
 
         //L//ist<String> newNames = new ArrayList<String>();
 
@@ -805,14 +805,14 @@ public class methods {
 
                 //newName = newName+"_sample_r";
                 if(parent_co.get(sample)>0) {
-                    newName = name.replaceAll("sample_","r_prim_sample_");
+                    newName = name.replaceAll("sample_","r_prim_fitness_"+fitness.get(sample)+"_sample_");
                 }
                 else{
-                    newName = name.replaceAll("sample_","r_seco_sample_");
+                    newName = name.replaceAll("sample_","r_seco_fitness_"+fitness.get(sample)+"_sample_");
                 }
             }
             else{
-                newName = name.replaceAll("sample_","nr_sample_");
+                newName = name.replaceAll("sample_","nr_nr_fitness_"+fitness.get(sample)+"_sample_");
             }
 
             names.set(i, newName);
