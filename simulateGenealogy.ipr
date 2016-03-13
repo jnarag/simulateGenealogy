@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ArtifactManager">
-    <artifact type="jar" name="simulateGenealogy:jar">
-      <output-path>$PROJECT_DIR$/out/artifacts/simulateGenealogy_jar</output-path>
+    <artifact type="jar" name="simulateGenealogy">
+      <output-path>$PROJECT_DIR$/out/artifacts/simulateGenealogy</output-path>
       <root id="archive" name="simulateGenealogy.jar">
         <element id="directory" name="META-INF">
           <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
@@ -10,7 +10,6 @@
         <element id="module-output" name="simulateGenealogy" />
         <element id="extracted-dir" path="$PROJECT_DIR$/../stochasticModel/out/artifacts/singlePatch/singlePatch.jar" path-in-jar="/" />
         <element id="library" level="project" name="stochasticModel" />
-        <element id="extracted-dir" path="$PROJECT_DIR$/../stochasticModel/out/artifacts/twoPatch/twoPatch.jar" path-in-jar="/" />
         <element id="extracted-dir" path="$PROJECT_DIR$/../colt/lib/colt.jar" path-in-jar="/" />
       </root>
     </artifact>
@@ -203,6 +202,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/simulateGenealogy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/src/simulateGenealogy" vcs="Git" />
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
