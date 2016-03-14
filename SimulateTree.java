@@ -37,31 +37,131 @@ public class SimulateTree {
 
     //int samplingScheme = 6;
 
-    class coalescentEvent{
+    public static void runOnePatchSim(String [] args) {
 
-        double timeToCoalescence;
-        int coalParent;
-        int[] coalDaughters;
+        EpiModel model = new reassortmentTauLeap();
+        EpiParams params = new EpiParams();
 
-        coalescentEvent(double timeCoalescence, Integer coalParent, int[] coalDaughters) {
+        System.out.println("Bofo");
+        int n_segments = 2;
+        int n_seasons = 40;
+        int n_lineages = 300;
 
-            this.timeToCoalescence = timeCoalescence;
-            this.coalParent = coalParent;
-            this.coalDaughters = coalDaughters;
+        n_lineages = Integer.parseInt(args[0]);
+        EpiParams.p = Double.parseDouble(args[1]);
+        EpiParams.q = 1- EpiParams.p;
+        EpiParams.psi = Double.parseDouble(args[2]);
+
+
+        model.runSimulation(params);
+
+
+        for(int j=0; j<n_seasons; j++) {
+
+            System.out.println("season "+(j+1));
+            SimulateTree tree = new SimulateTree();
+            tree.n_lineages = n_lineages;
+
+            tree.sampleStartTime += j*365.25;
+            tree.sampleEndTime += j*365.25;
+            tree.getTransmissionTrees(n_segments, model, 0);
         }
 
-        private double getTimeToCoalescence(){
 
-            return this.timeToCoalescence;
-        }
-        private Integer getCoalParent() {
+        //tree over 40 years
 
-            return this.coalParent;
-        }
-        private int[] getCoalDaughters() {
+        SimulateTree tree = new SimulateTree();
+        tree.n_lineages = 300;
+        tree.sampleStartTime = 20*365.25;
+        tree.sampleEndTime = 60*365.25;
+        tree.getTransmissionTrees(n_segments, model, 0);
 
-            return this.coalDaughters;
+
+    }
+
+    public static void runTwoPatchSim(String [] args)  {
+
+        EpiModel model = new reassortmentTwoPatch_new();
+        EpiParams params = new EpiParams();
+
+        EpiParams.psi_i = Double.parseDouble(args[0].trim());
+        EpiParams.psi_j =  Double.parseDouble(args[1].trim());
+        EpiParams.s_b1 = Double.parseDouble(args[2].trim());
+        EpiParams.antigenicMu_a = Double.parseDouble(args[3].trim());
+
+
+
+        int n_segments = Integer.parseInt(args[4].trim());
+        int n_seasons = Integer.parseInt(args[5].trim());
+        int n_lineages = Integer.parseInt(args[6].trim());
+
+        model.runSimulation(params);
+
+        for(int j=0; j<n_seasons; j++) {
+
+            System.out.println("season "+(j+1));
+            SimulateTree tree = new SimulateTree();
+            tree.sampleSeasonalPatch = true;
+            tree.n_lineages = n_lineages;
+
+            tree.sampleStartTime+=j*365.25;
+            tree.sampleEndTime+=j*365.25;
+            tree.getTransmissionTrees(n_segments, model, 0);
         }
+
+    }
+
+    public static void runMultiSamples(int n_samples, int n_segments, int n_seasons) {
+
+        // make sure that n_seasons is =< than (simulationEndTime-sampleStartTime)years;
+        // make sure also that sampleEndTime-sampleStartTime = 365.25 days or 1yr if n_seasons>1
+
+        // when changing between single and two-patch model, make sure to change the sampling scheme
+        EpiModel model = new reassortmentTwoPatch_new();
+        EpiParams params = new EpiParams();
+        model.runSimulation(params);
+
+        for(int i=0; i<n_samples; i++) {
+
+            System.out.println("pop sample no: "+ (i+1));
+            for(int j=0; j<n_seasons; j++){
+                SimulateTree tree = new SimulateTree();
+                tree.sampleStartTime+=j*365.25;
+                tree.sampleEndTime+=j*365.25;
+                tree.getTransmissionTrees(n_segments, model, (i+1));
+
+            }
+        }
+
+    }
+
+    public static void main(String [] args){
+
+
+//        EpiParams params = new EpiParams();
+//
+//        int no_of_sims = 1;
+//        double[][] tmrca_seg1 = new double[no_of_sims][61];
+//        double[][] tmrca_seg2 = new double[no_of_sims][61];
+//        double[][] fitness = new double[no_of_sims][61];
+//        double[][] fitnessv = new double[no_of_sims][61];
+//
+//        reassortmentTauLeap model = new reassortmentTauLeap();
+//        model.runSimulation(params, 0, tmrca_seg1, tmrca_seg2, fitness, fitnessv);
+//
+//        SimulateTree tree = new SimulateTree();
+//
+//
+//        tree.getTransmissionTrees(2, model, 1);
+
+        //runOnePatchSim(args);
+
+        //runOnePatchSim(args);
+
+        //runTwoPatchSim(args);
+
+        //SimulateTree simulateTree = new SimulateTree();
+
     }
 
     public void getTransmissionTree(EpiModel model, int seg) {
@@ -396,6 +496,8 @@ public class SimulateTree {
 
     }
 
+    //returns timeOfCoalescence
+
     public void sampleLineages(infectionHistory iMatrix, int samplingScheme) {
 
 
@@ -596,8 +698,6 @@ public class SimulateTree {
 
         return this_lineage;
     }
-
-    //returns timeOfCoalescence
 
     public coalescentEvent findMostRecentCoalescence(List<Integer> current_indiv, List<List<Integer>> parentLineages, infectionHistory iMatrix, coinfectionHistory icoMatrix) {
 
@@ -1524,133 +1624,33 @@ public class SimulateTree {
         }
     }
 
-    public static void runOnePatchSim(String [] args) {
-
-        EpiModel model = new reassortmentTauLeap();
-        EpiParams params = new EpiParams();
-
-        System.out.println("Bofo");
-        int n_segments = 2;
-        int n_seasons = 40;
-        int n_lineages = 300;
-
-        n_lineages = Integer.parseInt(args[0]);
-        EpiParams.p = Double.parseDouble(args[1]);
-        EpiParams.q = 1- EpiParams.p;
-        EpiParams.psi = Double.parseDouble(args[2]);
-
-
-        model.runSimulation(params);
-
-
-        for(int j=0; j<n_seasons; j++) {
-
-            System.out.println("season "+(j+1));
-            SimulateTree tree = new SimulateTree();
-            tree.n_lineages = n_lineages;
-
-            tree.sampleStartTime += j*365.25;
-            tree.sampleEndTime += j*365.25;
-            tree.getTransmissionTrees(n_segments, model, 0);
-        }
-
-
-        //tree over 40 years
-
-        SimulateTree tree = new SimulateTree();
-        tree.n_lineages = 300;
-        tree.sampleStartTime = 20*365.25;
-        tree.sampleEndTime = 60*365.25;
-        tree.getTransmissionTrees(n_segments, model, 0);
-
-
-    }
-
-    public static void runTwoPatchSim(String [] args)  {
-
-        EpiModel model = new reassortmentTwoPatch_new();
-        EpiParams params = new EpiParams();
-
-        EpiParams.psi_i = Double.parseDouble(args[0].trim());
-        EpiParams.psi_j =  Double.parseDouble(args[1].trim());
-        EpiParams.s_b1 = Double.parseDouble(args[2].trim());
-        EpiParams.antigenicMu_a = Double.parseDouble(args[3].trim());
-
-
-
-        int n_segments = Integer.parseInt(args[4].trim());
-        int n_seasons = Integer.parseInt(args[5].trim());
-        int n_lineages = Integer.parseInt(args[6].trim());
-
-        model.runSimulation(params);
-
-        for(int j=0; j<n_seasons; j++) {
-
-            System.out.println("season "+(j+1));
-            SimulateTree tree = new SimulateTree();
-            tree.sampleSeasonalPatch = true;
-            tree.n_lineages = n_lineages;
-
-            tree.sampleStartTime+=j*365.25;
-            tree.sampleEndTime+=j*365.25;
-            tree.getTransmissionTrees(n_segments, model, 0);
-        }
-
-    }
-
-    public static void runMultiSamples(int n_samples, int n_segments, int n_seasons) {
-
-        // make sure that n_seasons is =< than (simulationEndTime-sampleStartTime)years;
-        // make sure also that sampleEndTime-sampleStartTime = 365.25 days or 1yr if n_seasons>1
-
-        // when changing between single and two-patch model, make sure to change the sampling scheme
-        EpiModel model = new reassortmentTwoPatch_new();
-        EpiParams params = new EpiParams();
-        model.runSimulation(params);
-
-        for(int i=0; i<n_samples; i++) {
-
-            System.out.println("pop sample no: "+ (i+1));
-            for(int j=0; j<n_seasons; j++){
-                SimulateTree tree = new SimulateTree();
-                tree.sampleStartTime+=j*365.25;
-                tree.sampleEndTime+=j*365.25;
-                tree.getTransmissionTrees(n_segments, model, (i+1));
-
-            }
-        }
-
-    }
-
     //args - psi, s, antigenicMu
 
-    public static void main(String [] args){
+    class coalescentEvent{
 
+        double timeToCoalescence;
+        int coalParent;
+        int[] coalDaughters;
 
-//        EpiParams params = new EpiParams();
-//
-//        int no_of_sims = 1;
-//        double[][] tmrca_seg1 = new double[no_of_sims][61];
-//        double[][] tmrca_seg2 = new double[no_of_sims][61];
-//        double[][] fitness = new double[no_of_sims][61];
-//        double[][] fitnessv = new double[no_of_sims][61];
-//
-//        reassortmentTauLeap model = new reassortmentTauLeap();
-//        model.runSimulation(params, 0, tmrca_seg1, tmrca_seg2, fitness, fitnessv);
-//
-//        SimulateTree tree = new SimulateTree();
-//
-//
-//        tree.getTransmissionTrees(2, model, 1);
+        coalescentEvent(double timeCoalescence, Integer coalParent, int[] coalDaughters) {
 
-        //runOnePatchSim(args);
+            this.timeToCoalescence = timeCoalescence;
+            this.coalParent = coalParent;
+            this.coalDaughters = coalDaughters;
+        }
 
-        //runOnePatchSim(args);
+        private double getTimeToCoalescence(){
 
-        //runTwoPatchSim(args);
+            return this.timeToCoalescence;
+        }
+        private Integer getCoalParent() {
 
-        //SimulateTree simulateTree = new SimulateTree();
+            return this.coalParent;
+        }
+        private int[] getCoalDaughters() {
 
+            return this.coalDaughters;
+        }
     }
 
 
