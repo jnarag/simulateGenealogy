@@ -1373,7 +1373,7 @@ public class SimulateTree {
 
         int loc_b = (n_lineages-listToAppend.size()-1);
         System.out.println("loc_b "+loc_b);
-        System.out.println("b_names "+listToAppend.size());
+        System.out.println("b_names " + listToAppend.size());
         System.out.println("l_names "+list.size());
         for(int i = 0; i< listToAppend.size(); i++) {
 
