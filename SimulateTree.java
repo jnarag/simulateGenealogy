@@ -243,7 +243,7 @@ public class SimulateTree {
         }
         //Not all lineages coalesce - so need to figure out roughly lambda
 
-        double lamba_approx = (double)n_lineages*(((double)n_lineages)-1.0)*(params.nu_s+params.nu_co+params.mu+params.mu)/(params.Is_init+params.Ico_init);
+        double lamba_approx = (double)n_lineages*(((double)n_lineages)-1.0)*(EpiParams.nu_s + EpiParams.nu_co + EpiParams.mu + EpiParams.mu)/(EpiParams.Is_init + EpiParams.Ico_init);
         double k_approx = lamba_approx/((n_seqs+1)*n_seqs);
 
         k_approx = k_approx*10;
@@ -343,7 +343,7 @@ public class SimulateTree {
             //basal_b.add(children);
             //}
 
-            double timeOfCoalescence = params.simulationStartTime-50.0;
+            double timeOfCoalescence = EpiParams.simulationStartTime -50.0;
 
             d[index1] = (completeSeqTimes.get(index1) - timeOfCoalescence)/365.25;
             d[index2] = (completeSeqTimes.get(index2) - timeOfCoalescence)/365.25;
@@ -1437,21 +1437,21 @@ public class SimulateTree {
         FileWriter writer3 = null;
         //FileWriter writer4 = null;
 
-        model.iMatrix.segment1Fitness.clear();
-        model.iMatrix.fitness.clear();
+        EpiModel.iMatrix.segment1Fitness.clear();
+        EpiModel.iMatrix.fitness.clear();
 
         for(int i=0; i<n_segments; i++) {
 
             //File outputfile_b = new File("coalescentPairs_epidemic_"+n_lineages+"N_"+params.N+"_segment_mij_"+params.m_ij+"_psii_"+params.psi_i+"_psij_"+params.psi_j+"_"+(i)+".csv");
-            File outputfile_b = new File("coalescentPairs_endemic_"+n_lineages+"_N_"+params.N+"_antigenicMu_"+params.antigenicMu_a+"_s_"+params.s_b1+"_psi_"+params.psi_i+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
+            File outputfile_b = new File("coalescentPairs_endemic_"+n_lineages+"_N_"+ EpiParams.N +"_antigenicMu_"+ EpiParams.antigenicMu_a +"_s_"+ EpiParams.s_b1 +"_psi_"+ EpiParams.psi_i +"_psij_"+ EpiParams.psi_j +"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
 
             //File outputfile_d = new File("nodeTimes_epidemic_100_20e6_segment_mij_"+params.m_ij+"_psii_"+params.psi_i+"_psij_"+params.psi_j+"_"+(i)+".csv");
-            File outputfile_d = new File("nodeTimes_endemic_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenicMu_a+"_s_"+params.s_b1+"_psi_"+params.psi_i+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
+            File outputfile_d = new File("nodeTimes_endemic_"+n_lineages+"N_"+ EpiParams.N +"_antigenicMu_"+ EpiParams.antigenicMu_a +"_s_"+ EpiParams.s_b1 +"_psi_"+ EpiParams.psi_i +"_psij_"+ EpiParams.psi_j +"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
 
             //File outputfile_n = new File("names_epidemic_100_20e6_segment_mij_"+params.m_ij+"_psii_"+params.psi_i+"_psij_"+params.psi_j+"_"+(i)+".csv");
-            File outputfile_n = new File("names_endemic_"+n_lineages+"N_"+params.N+"_antigenicMu_"+params.antigenicMu_a+"_s_"+params.s_b1+"_psi_"+params.psi+"_psij_"+params.psi_j+"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
+            File outputfile_n = new File("names_endemic_"+n_lineages+"N_"+ EpiParams.N +"_antigenicMu_"+ EpiParams.antigenicMu_a +"_s_"+ EpiParams.s_b1 +"_psi_"+ EpiParams.psi +"_psij_"+ EpiParams.psi_j +"_samplePeriod_"+sampleStartTime/365.25+"_to_"+sampleEndTime/365.25+"_simNo_"+simNo+"_segment_"+(i+1)+".csv");
 
-            File treeOutputFile = new File("tree_"+n_lineages+"N_"+params.N+"_p_"+params.p+"_antigenicMu_"+params.antigenicMu_a+"_s_"+params.s_b1+"_psi_"+params.psi+"_samplePeriod_"+(Math.ceil(sampleStartTime/365.25))+"_to_"+(Math.ceil(sampleEndTime/365.25))+"_simNo_"+simNo+"_segment_"+(i+1)+".tre");
+            File treeOutputFile = new File("tree_"+n_lineages+"N_"+ EpiParams.N +"_p_"+ EpiParams.p +"_antigenicMu_"+ EpiParams.antigenicMu_a +"_s_"+ EpiParams.s_b1 +"_psi_"+ EpiParams.psi +"_samplePeriod_"+(Math.ceil(sampleStartTime/365.25))+"_to_"+(Math.ceil(sampleEndTime/365.25))+"_simNo_"+simNo+"_segment_"+(i+1)+".tre");
 
 //            try {
 //                writer1 = new FileWriter(outputfile_b);
@@ -1534,9 +1534,9 @@ public class SimulateTree {
         int n_lineages = 300;
 
         n_lineages = Integer.parseInt(args[0]);
-        params.p = Double.parseDouble(args[1]);
-        params.q = 1-params.p;
-        params.psi = Double.parseDouble(args[2]);
+        EpiParams.p = Double.parseDouble(args[1]);
+        EpiParams.q = 1- EpiParams.p;
+        EpiParams.psi = Double.parseDouble(args[2]);
 
 
         model.runSimulation(params);
@@ -1570,10 +1570,10 @@ public class SimulateTree {
         EpiModel model = new reassortmentTwoPatch_new();
         EpiParams params = new EpiParams();
 
-        params.psi_i = Double.parseDouble(args[0].trim());
-        params.psi_j =  Double.parseDouble(args[1].trim());
-        params.s_b1 = Double.parseDouble(args[2].trim());
-        params.antigenicMu_a = Double.parseDouble(args[3].trim());
+        EpiParams.psi_i = Double.parseDouble(args[0].trim());
+        EpiParams.psi_j =  Double.parseDouble(args[1].trim());
+        EpiParams.s_b1 = Double.parseDouble(args[2].trim());
+        EpiParams.antigenicMu_a = Double.parseDouble(args[3].trim());
 
 
 
