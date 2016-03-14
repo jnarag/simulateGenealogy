@@ -1529,6 +1529,7 @@ public class SimulateTree {
         EpiModel model = new reassortmentTauLeap();
         EpiParams params = new EpiParams();
 
+        System.out.println("Boo");
         int n_segments = 2;
         int n_seasons = 40;
         int n_lineages = 300;
